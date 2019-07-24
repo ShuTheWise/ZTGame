@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-//#include "GameFramework/Actor.h"
 #include "Engine/TriggerVolume.h"
 #include <Runtime\Engine\Classes\Engine\Light.h>
 #include "Switch.generated.h"
