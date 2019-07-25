@@ -1,10 +1,11 @@
 // Copyright 1998-2019 Epic Games, Inc. All Rights Reserved.
 
 #include "ZTGameProjectile.h"
+#include "DestructibleCube.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/SphereComponent.h"
 
-AZTGameProjectile::AZTGameProjectile() 
+AZTGameProjectile::AZTGameProjectile()
 {
 	// Use a sphere as a simple collision representation
 	CollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
@@ -39,5 +40,12 @@ void AZTGameProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, 
 		OtherComp->AddImpulseAtLocation(GetVelocity() * 100.0f, GetActorLocation());
 
 		Destroy();
+
+		ADestructibleCube* DestructibleCube = Cast<ADestructibleCube>(OtherComp->GetOwner());
+
+		if (DestructibleCube)
+		{
+			DestructibleCube->Hit(HitForce);
+		}
 	}
 }
