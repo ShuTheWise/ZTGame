@@ -6,27 +6,42 @@
 // Sets default values
 ADestructibleCube::ADestructibleCube()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
-}
 
-void ADestructibleCube::Hit(int32 HitAmount)
-{
-	Health -= HitAmount;
-	if (Health < 1) 
-	{
-		Destruct();
-	}
+	DestructibleComponent = CreateDefaultSubobject<UDestructibleComponent>(TEXT("DestructibleComponent"));
+	DestructibleComponent->SetNotifyRigidBodyCollision(true);
 }
 
 // Called when the game starts or when spawned
 void ADestructibleCube::BeginPlay()
 {
 	Super::BeginPlay();
+	CurrentHealth = MaxHealth;
+	DestructibleComponent->OnComponentHit.AddDynamic(this, &ADestructibleCube::OnCompHit);
 }
 
-void ADestructibleCube::Destruct()
+void ADestructibleCube::Destruct(float DamageAmount, FVector HitLoc, FVector HitDir, float ImpulseStrength)
 {
-	Destroy();
+	if (!DestructibleComponent)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Missing DestructibleComponent !!!"));
+		return;
+	}
+	UE_LOG(LogTemp, Error, TEXT("cube destroyed"));
+	DestructibleComponent->ApplyRadiusDamage(DamageAmount, HitLoc, DefaultDamageRadius, ImpulseStrength, true);
 }
 
+void ADestructibleCube::OnCompHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	if (!OtherActor->ActorHasTag("Projectile") || bDestroyed) return;
+
+	UE_LOG(LogTemp, Error, TEXT("cube hit"));
+
+	CurrentHealth -= 1.f;
+	if (CurrentHealth <= 0.0f)
+	{
+		bDestroyed = true;
+		Destruct(DefaultDamageAmount, Hit.Location, NormalImpulse, DefaultImpulseStrength);
+	}
+}

@@ -39,7 +39,7 @@ void AColorChanger::BeginPlay()
 		}
 	}
 
-	UE_LOG(LogTemp, Error, TEXT("chaning color on %s failed"),*GetName());
+	UE_LOG(LogTemp, Error, TEXT("changing color on %s failed"),*GetName());
 }
 
 // Called every frame
@@ -54,6 +54,9 @@ void AColorChanger::OnCompHit(UPrimitiveComponent* HitComp, AActor* OtherActor, 
 	{
 		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("I Hit: %s, setting new color"), *OtherActor->GetName()));
 		if (Light)
+		{
+			OtherActor->Destroy();
 			Light->SetLightColor(LightColor);
+		}
 	}
 }

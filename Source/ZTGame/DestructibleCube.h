@@ -4,26 +4,46 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "DestructibleComponent.h"
 #include "DestructibleCube.generated.h"
 
 UCLASS()
 class ZTGAME_API ADestructibleCube : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	// Sets default values for this actor's properties
 	ADestructibleCube();
-
-	void Hit(int32 HitAmount);
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	
+
 	UPROPERTY(EditAnywhere, Category = "Stats")
-		int32 Health = 3;
+		float MaxHealth = 3.f;
+
+	UPROPERTY(EditAnywhere, Category = "Stats")
+		float DefaultDamageAmount = 1.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Stats")
+		float DefaultImpulseStrength = 1.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Stats")
+		float DefaultDamageRadius = 1.0f;
 
 private:
-	void Destruct();
+	UPROPERTY(VisibleAnywhere, Category = "Stats")
+		float CurrentHealth;
+
+	UPROPERTY(VisibleAnywhere, Category = "Stats")
+		bool bDestroyed;
+
+	UPROPERTY(VisibleAnywhere, Category = "Stats")
+		UDestructibleComponent* DestructibleComponent;
+
+	void Destruct(float DamageAmount, FVector HitLoc, FVector HitDir, float ImpulseStrength);
+
+	UFUNCTION()
+		void OnCompHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 };

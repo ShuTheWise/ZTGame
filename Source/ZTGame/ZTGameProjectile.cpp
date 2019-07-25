@@ -40,12 +40,5 @@ void AZTGameProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, 
 		OtherComp->AddImpulseAtLocation(GetVelocity() * 100.0f, GetActorLocation());
 
 		Destroy();
-
-		ADestructibleCube* DestructibleCube = Cast<ADestructibleCube>(OtherComp->GetOwner());
-
-		if (DestructibleCube)
-		{
-			DestructibleCube->Hit(HitForce);
-		}
 	}
 }

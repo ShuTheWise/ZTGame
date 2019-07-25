@@ -30,9 +30,4 @@ public:
 	FORCEINLINE class USphereComponent* GetCollisionComp() const { return CollisionComp; }
 	/** Returns ProjectileMovement subobject **/
 	FORCEINLINE class UProjectileMovementComponent* GetProjectileMovement() const { return ProjectileMovement; }
-
-private:
-	UPROPERTY(EditAnywhere, Category = Projectile)
-		int32 HitForce = 1;
 };
-
