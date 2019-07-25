@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "DestructibleCube.h"
+#include "UnrealNetwork.h"
 
 // Sets default values
 ADestructibleCube::ADestructibleCube()
@@ -36,6 +36,18 @@ void ADestructibleCube::OnCompHit(UPrimitiveComponent* HitComp, AActor* OtherAct
 {
 	if (!OtherActor->ActorHasTag("Projectile") || bDestroyed) return;
 
+	if (Role == ROLE_Authority)
+	{
+		RegisterHit(Hit, NormalImpulse);
+	}
+	else
+	{
+		ServerRegisterHit(Hit, NormalImpulse);
+	}
+}
+
+void ADestructibleCube::RegisterHit(const FHitResult& Hit, const FVector& NormalImpulse)
+{
 	UE_LOG(LogTemp, Error, TEXT("cube hit"));
 
 	CurrentHealth -= 1.f;
@@ -44,4 +56,25 @@ void ADestructibleCube::OnCompHit(UPrimitiveComponent* HitComp, AActor* OtherAct
 		bDestroyed = true;
 		Destruct(DefaultDamageAmount, Hit.Location, NormalImpulse, DefaultImpulseStrength);
 	}
+}
+
+bool ADestructibleCube::ServerRegisterHit_Validate(const FHitResult& Hit, const FVector& NormalImpulse)
+{
+	return true;
+}
+
+void ADestructibleCube::ServerRegisterHit_Implementation(const FHitResult& Hit, const FVector& NormalImpulse)
+{
+	if (Role == ROLE_Authority)
+	{
+		RegisterHit(Hit, NormalImpulse);
+	}
+}
+
+void ADestructibleCube::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	// Replicate to everyone
+	DOREPLIFETIME(ADestructibleCube, CurrentHealth);
 }

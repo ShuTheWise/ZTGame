@@ -1,16 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Switch.h"
+#include "Net/UnrealNetwork.h"
 #include "DrawDebugHelpers.h"
-
-#define print(text) if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 1.5, FColor::Green,text)
-#define printFString(text, fstring) if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT(text), fstring))
 
 // Sets default values
 ASwitch::ASwitch()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
 	//Register Events
@@ -44,10 +40,8 @@ void ASwitch::OnOverlapEnd(AActor* OverlappingActor, AActor* OtherActor)
 
 void ASwitch::SetLightEnabled(bool b)
 {
-	//printFString("Other Actor = %s", *OtherActor->GetName());
 	if (Light) {
 		FString s = b ? "on" : "off";
-		printFString("Other Actor = %s", *s);
 		Light->SetEnabled(b);
 	}
 }

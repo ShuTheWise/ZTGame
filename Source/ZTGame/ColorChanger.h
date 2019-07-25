@@ -16,19 +16,23 @@ public:
 	// Sets default values for this actor's properties
 	AColorChanger();
 
+	UPROPERTY(interp, meta = (HideAlphaChannel))
+		FColor LightColor;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	void SetLightColor();
 
+	UFUNCTION(reliable, server, WithValidation)
+	void ServerSetLightColor();
+	virtual void ServerSetLightColor_Implementation();
+	virtual bool ServerSetLightColor_Validate();
+
+private:
 	UPROPERTY(VisibleAnywhere)
 		class UBoxComponent* BoxComponent;
-
-	UPROPERTY(BlueprintReadOnly, interp, Category = ColorChanger, meta = (HideAlphaChannel))
-		FColor LightColor;
 
 	UPROPERTY(EditAnywhere)
 		ALight* Light;

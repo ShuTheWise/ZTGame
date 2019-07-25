@@ -25,9 +25,6 @@ public:
 	UPROPERTY(EditAnywhere)
 		ALight* Light;
 
-	//UPROPERTY()
-		//int32 CountdownTime;
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

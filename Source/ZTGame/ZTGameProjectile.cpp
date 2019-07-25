@@ -30,6 +30,10 @@ AZTGameProjectile::AZTGameProjectile()
 
 	// Die after 3 seconds by default
 	InitialLifeSpan = 3.0f;
+
+	//networking
+	bReplicates = true;
+	bReplicateMovement = true;
 }
 
 void AZTGameProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)

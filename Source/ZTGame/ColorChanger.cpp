@@ -8,7 +8,7 @@
 AColorChanger::AColorChanger()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	// Use a sphere as a simple collision representation
 	BoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComp"));
@@ -39,13 +39,31 @@ void AColorChanger::BeginPlay()
 		}
 	}
 
-	UE_LOG(LogTemp, Error, TEXT("changing color on %s failed"),*GetName());
+	UE_LOG(LogTemp, Error, TEXT("changing color on %s failed"), *GetName());
 }
 
-// Called every frame
-void AColorChanger::Tick(float DeltaTime)
+void AColorChanger::SetLightColor()
 {
-	Super::Tick(DeltaTime);
+	if (Light)
+	{
+		if (Role == ROLE_Authority)
+		{
+			Light->SetLightColor(LightColor);
+		}
+		else {
+			ServerSetLightColor();
+		}
+	}
+}
+
+void AColorChanger::ServerSetLightColor_Implementation()
+{
+	SetLightColor();
+}
+
+bool AColorChanger::ServerSetLightColor_Validate()
+{
+	return true;
 }
 
 void AColorChanger::OnCompHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
@@ -53,10 +71,13 @@ void AColorChanger::OnCompHit(UPrimitiveComponent* HitComp, AActor* OtherActor, 
 	if ((OtherActor != NULL) && (OtherActor != this) && (OtherComp != NULL))
 	{
 		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("I Hit: %s, setting new color"), *OtherActor->GetName()));
+
 		if (Light)
 		{
-			OtherActor->Destroy();
-			Light->SetLightColor(LightColor);
+			if (OtherActor->ActorHasTag("Projectile")) {
+				OtherActor->Destroy();
+				SetLightColor();
+			}
 		}
 	}
 }
