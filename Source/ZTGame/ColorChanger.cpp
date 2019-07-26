@@ -42,39 +42,22 @@ void AColorChanger::BeginPlay()
 	UE_LOG(LogTemp, Error, TEXT("changing color on %s failed"), *GetName());
 }
 
-void AColorChanger::SetLightColor()
+void AColorChanger::SetLightColor_Implementation()
 {
 	if (Light)
 	{
-		if (Role == ROLE_Authority)
-		{
-			Light->SetLightColor(LightColor);
-		}
-		else {
-			ServerSetLightColor();
-		}
+		Light->SetLightColor(LightColor);
 	}
-}
-
-void AColorChanger::ServerSetLightColor_Implementation()
-{
-	SetLightColor();
-}
-
-bool AColorChanger::ServerSetLightColor_Validate()
-{
-	return true;
 }
 
 void AColorChanger::OnCompHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	if ((OtherActor != NULL) && (OtherActor != this) && (OtherComp != NULL))
 	{
-		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("I Hit: %s, setting new color"), *OtherActor->GetName()));
-
 		if (Light)
 		{
 			if (OtherActor->ActorHasTag("Projectile")) {
+				if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("I Hit: %s, setting new color"), *OtherActor->GetName()));
 				OtherActor->Destroy();
 				SetLightColor();
 			}

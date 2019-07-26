@@ -23,12 +23,9 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UFUNCTION(NetMulticast, reliable)
 	void SetLightColor();
-
-	UFUNCTION(reliable, server, WithValidation)
-	void ServerSetLightColor();
-	virtual void ServerSetLightColor_Implementation();
-	virtual bool ServerSetLightColor_Validate();
+	void SetLightColor_Implementation();
 
 private:
 	UPROPERTY(VisibleAnywhere)

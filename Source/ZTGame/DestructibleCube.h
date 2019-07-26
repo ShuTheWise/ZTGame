@@ -32,13 +32,10 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Stats")
 		float DefaultDamageRadius = 1.0f;
 
+	UFUNCTION(NetMulticast, Reliable)
 	void RegisterHit(const FHitResult& Hit, const FVector& NormalImpulse);
-
-	UFUNCTION(Server, Reliable, WithValidation)
-		void ServerRegisterHit(const FHitResult& Hit, const FVector& NormalImpulse);
-
-	bool ServerRegisterHit_Validate(const FHitResult& Hit, const FVector& NormalImpulse);
-	void ServerRegisterHit_Implementation(const FHitResult& Hit, const FVector& NormalImpulse);
+	
+	virtual void RegisterHit_Implementation(const FHitResult& Hit, const FVector& NormalImpulse);
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Stats", Replicated)

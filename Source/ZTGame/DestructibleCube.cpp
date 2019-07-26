@@ -36,17 +36,23 @@ void ADestructibleCube::OnCompHit(UPrimitiveComponent* HitComp, AActor* OtherAct
 {
 	if (!OtherActor->ActorHasTag("Projectile") || bDestroyed) return;
 
-	if (Role == ROLE_Authority)
-	{
-		RegisterHit(Hit, NormalImpulse);
-	}
-	else
-	{
-		ServerRegisterHit(Hit, NormalImpulse);
-	}
+	//if (Role == ROLE_Authority)
+	//{
+	RegisterHit(Hit, NormalImpulse);
+	//}
+	//else
+	//{
+	//	RegisterHit(Hit, NormalImpulse);
+	//	ServerRegisterHit(Hit, NormalImpulse);
+	//}
 }
+//
+//void ADestructibleCube::RegisterHit(const FHitResult& Hit, const FVector& NormalImpulse)
+//{
+//	
+//}
 
-void ADestructibleCube::RegisterHit(const FHitResult& Hit, const FVector& NormalImpulse)
+void ADestructibleCube::RegisterHit_Implementation(const FHitResult& Hit, const FVector& NormalImpulse)
 {
 	UE_LOG(LogTemp, Error, TEXT("cube hit"));
 
@@ -55,19 +61,6 @@ void ADestructibleCube::RegisterHit(const FHitResult& Hit, const FVector& Normal
 	{
 		bDestroyed = true;
 		Destruct(DefaultDamageAmount, Hit.Location, NormalImpulse, DefaultImpulseStrength);
-	}
-}
-
-bool ADestructibleCube::ServerRegisterHit_Validate(const FHitResult& Hit, const FVector& NormalImpulse)
-{
-	return true;
-}
-
-void ADestructibleCube::ServerRegisterHit_Implementation(const FHitResult& Hit, const FVector& NormalImpulse)
-{
-	if (Role == ROLE_Authority)
-	{
-		RegisterHit(Hit, NormalImpulse);
 	}
 }
 

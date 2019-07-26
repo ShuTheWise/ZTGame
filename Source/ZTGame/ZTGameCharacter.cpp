@@ -140,48 +140,61 @@ void AZTGameCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 
 void AZTGameCharacter::OnFire()
 {
+	const FVector ActorLocation = GetActorLocation();
+	const FRotator SpawnRotation = GetControlRotation();
+	// MuzzleOffset is in camera space, so transform it to world space before offsetting from the character location to find the final muzzle position
+	const FVector SpawnLocation = ((FP_MuzzleLocation != nullptr) ? FP_MuzzleLocation->GetComponentLocation() : GetActorLocation()) + SpawnRotation.RotateVector(GunOffset);
+
+	if (Role == ROLE_Authority)
+	{
+		ServerFire_Implementation(ActorLocation, SpawnLocation, SpawnRotation);
+	}
+	else
+	{
+		ServerFire(ActorLocation, SpawnLocation, SpawnRotation);
+	}
+
+	// try and play the sound if specified
+	if (FireSound != NULL)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Server fire sound"));
+		UGameplayStatics::PlaySoundAtLocation(this, FireSound, ActorLocation);
+	}
+
+	// try and play a firing animation if specified
+	if (FireAnimation != NULL)
+	{
+		UE_LOG(LogTemp, Error, TEXT("anim fire sound"));
+
+		// Get the animation object for the arms mesh
+		UAnimInstance* AnimInstance = Mesh1P->GetAnimInstance();
+		if (AnimInstance != NULL)
+		{
+			AnimInstance->Montage_Play(FireAnimation, 1.f);
+		}
+	}
+}
+
+bool AZTGameCharacter::ServerFire_Validate(const FVector& ActorLocation, const FVector& GunLocation, const FRotator& Rotation)
+{
+	return true;
+}
+
+void AZTGameCharacter::ServerFire_Implementation(const FVector& ActorLocation, const FVector& GunLocation, const FRotator& Rotation)
+{
 	// try and fire a projectile
 	if (ProjectileClass != NULL)
 	{
 		UWorld* const World = GetWorld();
 		if (World != NULL)
 		{
-			if (bUsingMotionControllers)
-			{
-				const FRotator SpawnRotation = VR_MuzzleLocation->GetComponentRotation();
-				const FVector SpawnLocation = VR_MuzzleLocation->GetComponentLocation();
-				World->SpawnActor<AZTGameProjectile>(ProjectileClass, SpawnLocation, SpawnRotation);
-			}
-			else
-			{
-				const FRotator SpawnRotation = GetControlRotation();
-				// MuzzleOffset is in camera space, so transform it to world space before offsetting from the character location to find the final muzzle position
-				const FVector SpawnLocation = ((FP_MuzzleLocation != nullptr) ? FP_MuzzleLocation->GetComponentLocation() : GetActorLocation()) + SpawnRotation.RotateVector(GunOffset);
 
-				//Set Spawn Collision Handling Override
-				FActorSpawnParameters ActorSpawnParams;
-				ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
+			//Set Spawn Collision Handling Override
+			FActorSpawnParameters ActorSpawnParams;
+			ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 
-				// spawn the projectile at the muzzle
-				World->SpawnActor<AZTGameProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
-			}
-		}
-	}
-
-	// try and play the sound if specified
-	if (FireSound != NULL)
-	{
-		UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
-	}
-
-	// try and play a firing animation if specified
-	if (FireAnimation != NULL)
-	{
-		// Get the animation object for the arms mesh
-		UAnimInstance* AnimInstance = Mesh1P->GetAnimInstance();
-		if (AnimInstance != NULL)
-		{
-			AnimInstance->Montage_Play(FireAnimation, 1.f);
+			// spawn the projectile at the muzzle
+			World->SpawnActor<AZTGameProjectile>(ProjectileClass, GunLocation, Rotation, ActorSpawnParams);
 		}
 	}
 }
@@ -295,6 +308,6 @@ bool AZTGameCharacter::EnableTouchscreenMovement(class UInputComponent* PlayerIn
 		//PlayerInputComponent->BindTouch(EInputEvent::IE_Repeat, this, &AZTGameCharacter::TouchUpdate);
 		return true;
 	}
-	
+
 	return false;
 }
