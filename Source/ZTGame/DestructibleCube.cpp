@@ -36,21 +36,8 @@ void ADestructibleCube::OnCompHit(UPrimitiveComponent* HitComp, AActor* OtherAct
 {
 	if (!OtherActor->ActorHasTag("Projectile") || bDestroyed) return;
 
-	//if (Role == ROLE_Authority)
-	//{
 	RegisterHit(Hit, NormalImpulse);
-	//}
-	//else
-	//{
-	//	RegisterHit(Hit, NormalImpulse);
-	//	ServerRegisterHit(Hit, NormalImpulse);
-	//}
 }
-//
-//void ADestructibleCube::RegisterHit(const FHitResult& Hit, const FVector& NormalImpulse)
-//{
-//	
-//}
 
 void ADestructibleCube::RegisterHit_Implementation(const FHitResult& Hit, const FVector& NormalImpulse)
 {
